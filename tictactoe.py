@@ -80,10 +80,6 @@ while True:
     for i, row in enumerate(board): 
         for j, value in enumerate(row):
             if value is None: 
-                # this is an actual option
-                # will be 0 if no nearby Xs are there 
-                # will be 1/3 if there is one nearby X 
-                # will be 1/2 if there is 2 nearby X 
             
                 temp_board = [[value for value in row] for row in board]
                 temp_board[i][j] = "X"
