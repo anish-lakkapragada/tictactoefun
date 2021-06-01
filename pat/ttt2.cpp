@@ -9,6 +9,7 @@ using std::string;
 typedef  unsigned char  UCH;
 typedef  unsigned int   UINT;
 
+const string CLEAR = "\x1b[3J\x1b[H\x1b[2J";
 const UINT NUM_WINS = 10;
 const UINT WINS[NUM_WINS][3][2] = {
     // Horizontal
@@ -32,11 +33,13 @@ public:
     ~Board() {}
 
     Board() {
-        board = {};
+        for (UCH i = 0; i < 9; i++) board[i] = 0;
+        turn = true;
     }
 
-    Board(UCH b[9]) {
-        board = b;
+    Board(UCH* b, const bool& t=true) {
+        for (UCH i = 0; i < 9; i++) board[i] = b[i];
+        turn = t;
     }
 
     UCH get(const UCH& x, const UCH& y) {
@@ -58,11 +61,74 @@ public:
         return 0;
     }
 
-    UCH* board;
+    void print(std::ostream& out, const bool& flush=true) {
+        const string row = "  +---+---+---+";
+        const string col = " | ";
+        const string bottom = "    a   b   c";
+
+        for (UCH y = 0; y < 3; y++) {
+            out << row << "\n";
+            out << std::to_string(3-y);
+            for (UCH x = 0; x < 3; x++) {
+                const UCH v = get(x, y);
+                out << col;
+                if (v == 0)      out << " ";
+                else if (v == 1) out << "X";
+                else if (v == 2) out << "O";
+            }
+            out << col << "\n";
+        }
+        out << row << "\n";
+        out << bottom << "\n\n";
+        out << "Turn: ";
+        if (turn) out << "X";
+        else      out << "O";
+        out << "\n";
+
+        if (flush) out << std::flush;
+    }
+
+    UCH board[9];
+    bool turn;
 };
 
 
-int main() {
+UCH* parse_move(const string& move) {
+    const UCH col = move[0], row = move[1];
+    UCH* loc;
+    loc[0] = col-97;
+    loc[1] = row-49;
+    return loc;
+}
+
+
+void two_people() {
+    Board board;
+
+    while (true) {
+        const UCH result = board.result();
+        if (result == 1) {
+            cout << "X wins!" << endl;
+            break;
+        } else if (result == 2) {
+            cout << "O wins!" << endl;
+            break;
+        }
+
+        cout << CLEAR << std::flush;
+        board.print(cout);
+
+        string move;
+        cout << "Enter your move (ex. a1): " << std::flush;
+        getline(cin, move);
+
+        const UCH* loc = parse_move(move);
+        cout << +loc[0] << " " << +loc[1] << endl;
+    }
+}
+
+
+bool get_turn() {
     cout << "Do you want to play first (0) or second (1)? " << std::flush;
 
     string ans;
@@ -78,4 +144,22 @@ int main() {
         }
         break;
     }
+
+    return turn;
 }
+
+
+int main() {
+    two_people();
+}
+
+/*
+  +---+---+---+
+3 |   | O |   |
+  +---+---+---+
+2 | X | O | X |
+  +---+---+---+
+1 | O |   | X |
+  +---+---+---+
+    a   b   c
+*/
