@@ -115,10 +115,10 @@ def search(board: Board):  # Return (eval, depth, nodes, bestmove)
         ev, d, n, _ = search(new_board)
         nodes += n
         max_depth = max(max_depth, d)
-        if board.turn and ev > best_eval:
+        if board.turn and ev >= best_eval:
             best_eval = ev
             best_move = i
-        elif not board.turn and ev < best_eval:
+        elif not board.turn and ev <= best_eval:
             best_eval = ev
             best_move = i
 
@@ -127,6 +127,8 @@ def search(board: Board):  # Return (eval, depth, nodes, bestmove)
 
 def main():
     b = Board()
+    b[4] = X
+    b[1] = O
     while True:
         r = search(b)
         b[r[3]] = X if b.turn else O
