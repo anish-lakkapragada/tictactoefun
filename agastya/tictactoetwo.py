@@ -16,8 +16,8 @@ def empty(board):
 
 def emptypos(board):
     empty = []
-    for coordy in range(0, 2):
-        for coordx in range(0, 2):
+    for coordy in range(0, 3):
+        for coordx in range(0, 3):
             if board[coordy][coordx] == "*":
                 empty.append([coordy, coordx])
     return empty
@@ -28,8 +28,8 @@ def won(board):
     enemy = []
     coordx = 0
     coordy = 0
-    for coordy in range(0, 2):
-        for coordx in range(0, 2):
+    for coordy in range(0, 3):
+        for coordx in range(0, 3):
             if board[coordy][coordx] == "*":
                 pass
             elif board[coordy][coordx] == "X":
@@ -70,25 +70,35 @@ def sim(board):
     coolest = []
     for x in range(empty(board)):
         best = 0
-        board[emptypos(board)[x][0]][emptypos(board)[x][1]] = "O"
-        current = [[emptypos(board)[x][0]], [emptypos(board)[x][1]]]
+        if len(emptypos(board)) > 0:
+            board[emptypos(board)[0][0]][emptypos(board)[0][1]] = "O"
+            current = [emptypos(board)[0][0], emptypos(board)[0][1]]
         if won(board) == "I won!":
             best = best + 1
         else:
             for y in range(empty(board)):
-                board[emptypos(board)[y][0]][emptypos(board)[y][1]] = "X"
+                print(y)
+                print(emptypos(board))
+                print(board[0][2])
+                if len(emptypos(board)) > 0:
+                    board[emptypos(board)[0][0]][emptypos(board)[0][1]] = "X"
+                ticprint(board)
                 if won(board) == "You won.":
                     best = best - 1
                 else:
                     for z in range(empty(board)):
-                        board[emptypos(board)[y][0]][emptypos(board)[y][1]] = "O"
+                        print(emptypos(board), z)
+                        if len(emptypos(board)) > 0:
+                            board[emptypos(board)[0][0]][emptypos(board)[0][1]] = "O"
                         if won(board) == "I won!":
                             best = best + 1
+                            print(best)
                         else:
                             continue
         if best > finalbest:
             finalbest = best
             coolest = current
+            print(coolest)
             
     return coolest
 
@@ -99,6 +109,8 @@ def play(board):
         col = int(input("Enter the column. "))
         board[row][col] = "X"
         ticprint(board)
+        print(sim(board)[0])
+        print(board[0][2])
         board[sim(board)[0]][sim(board)[1]] = "O"
         ticprint(board)
     print(won(board))
