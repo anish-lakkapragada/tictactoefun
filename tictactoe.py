@@ -117,13 +117,4 @@ while True:
         pretty_print(board)
         break 
 
-    pretty_print(board)
-
-
-            
-
-
-
-
-
-
+    pretty_print(board) 
