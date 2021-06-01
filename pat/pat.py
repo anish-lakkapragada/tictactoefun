@@ -126,16 +126,32 @@ def search(board: Board):  # Return (eval, depth, nodes, bestmove)
 
 
 def main():
-    b = Board()
-    b[4] = X
-    b[1] = O
+    board = Board()
+
     while True:
-        r = search(b)
-        b[r[3]] = X if b.turn else O
-        b.turn = not b.turn
-        print(r)
-        print(b)
-        input()
+        result = board.result()
+        if result is not None:
+            win = "X" if result == X else "O"
+            if result == 0:
+                win = "DRAW"
+            print(f"Game result: {win}")
+            break
+
+        print("\n"*10)
+        if board.turn:
+            print(board)
+            move = int(input("Move (index): "))
+            board[move] = X
+            board.turn = not board.turn
+        else:
+            r = search(board)
+            board[r[3]] = X if board.turn else O
+            board.turn = not board.turn
+            print(board)
+            print(f"Evaluation (0=draw, 1=X wins, -1=O wins): {r[0]}")
+            print(f"Max depth searched: {r[1]}")
+            print(f"Total positions searched: {r[2]}")
+            print(f"Best move (index): {r[3]}")
 
 
 main()
