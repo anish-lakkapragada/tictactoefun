@@ -1,3 +1,5 @@
+import time
+
 E = 0
 X = 1
 O = 2
@@ -65,7 +67,7 @@ class Board:
     @classmethod
     def frombytes(cls, data):
         board = [x for x in data[:9]]
-        turn = (data[9] == b"\x01")
+        turn = (data[9] == 1)
         return cls(board, turn)
 
     def tobytes(self):
@@ -84,46 +86,54 @@ class Board:
             v3 = self.get(*p3)
             if v1 == v2 == v3 and v1 != 0:
                 return v1
-        return 0
+
+        if 0 not in self.board:
+            return 0
+
+        return None
 
 
-def search(data):
-    board = Board.frombytes(data)
+def search(board: Board):  # Return (eval, depth, nodes, bestmove)
+    result = board.result()
+    if result == 0:
+        return (0, 1, 1, None)
+    elif result == 1:
+        return (1, 1, 1, None)
+    elif result == 2:
+        return (-1, 1, 1, None)
 
-    # Check if one side won
-    if (r := board.result()) != 0:
-        return (-2*r+3, 1, 0)
-
-    # Check if it's a draw
-    if 0 not in board:
-        return (0, 1, 0)
-
-    # Consider all possible moves
-    turn = -board.turn + 2    # Gets value (X or O constant)
-    best_eval = -1 if board.turn else 1
-
-    max_depth = 0
+    turn = X if board.turn else O
     nodes = 0
-    for i in range(9):
-        if board[i] == 0:
-            new_board = Board.frombytes(data)
-            new_board[i] = turn
+    max_depth = 0
+    best_eval = -1 if board.turn else 1
+    best_move = None
+    for i in [x for x in range(9) if board[x] == 0]:
+        new_board = Board.frombytes(board.tobytes())
+        new_board[i] = turn
+        new_board.turn = not new_board.turn
 
-            curr_eval, n, d = search(new_board.tobytes())
-            nodes += n
-            max_depth = max(max_depth, d)
-            if turn and curr_eval > best_eval:
-                best_eval = curr_eval
-            elif not turn and curr_eval < best_eval:
-                best_eval = curr_eval
+        ev, d, n, _ = search(new_board)
+        nodes += n
+        max_depth = max(max_depth, d)
+        if board.turn and ev > best_eval:
+            best_eval = ev
+            best_move = i
+        elif not board.turn and ev < best_eval:
+            best_eval = ev
+            best_move = i
 
-    return (best_eval, nodes, max_depth+1)
+    return (best_eval, max_depth+1, nodes+1, best_move)
 
 
 def main():
     b = Board()
-    d=search(b.tobytes())
-    print(d)
+    while True:
+        r = search(b)
+        b[r[3]] = X if b.turn else O
+        b.turn = not b.turn
+        print(r)
+        print(b)
+        input()
 
 
 main()
