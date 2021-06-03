@@ -72,8 +72,41 @@ public:
         return board[x + 3*y];
     }
 
+    UCH get(const UCH p[2]) {
+        return board[p[0] + 3*p[1]];
+    }
+
     void set(const UCH x, const UCH y, const UCH v) {
         board[x + 3*y] = v;
+    }
+
+    Board copy() {
+        Board new_board;
+        for (UCH i = 0; i < 9; i++)
+            new_board.board[i] = board[i];
+        new_board.turn = turn;
+
+        return new_board;
+    }
+
+    bool contains(const UCH v) {
+        for (UCH i = 0; i < 9; i++) {
+            if (board[i] == v) return true;
+        }
+        return false;
+    }
+
+    UCH result() {
+        for (UCH i = 0; i < NUM_WINS; i++) {
+            const UCH p1 = get(WINS[i][0]);
+            const UCH p2 = get(WINS[i][1]);
+            const UCH p3 = get(WINS[i][2]);
+            if (p1 == p2 && p2 == p3 && p1 != 0)
+                return p1;
+        }
+
+        if (!contains(0)) return 0;
+        return 255;
     }
 
     UCH* board;
