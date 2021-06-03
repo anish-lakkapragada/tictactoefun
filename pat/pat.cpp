@@ -96,7 +96,7 @@ public:
         return false;
     }
 
-    UCH result() {
+    char result() {
         for (UCH i = 0; i < NUM_WINS; i++) {
             const UCH p1 = get(WINS[i][0]);
             const UCH p2 = get(WINS[i][1]);
@@ -106,12 +106,70 @@ public:
         }
 
         if (!contains(0)) return 0;
-        return 255;
+        return -1;
     }
 
     UCH* board;
     bool turn;
 };
+
+
+struct SearchInfo {
+    ~SearchInfo() {
+    }
+
+    SearchInfo() {
+    }
+
+    SearchInfo(const char e, const UINT d, const UINT n, const UCH b) {
+        eval = e;
+        depth = d;
+        nodes = n;
+        best = b;
+    }
+
+    char eval;
+    UINT depth;
+    UINT nodes;
+    UCH  best;
+};
+
+
+SearchInfo search(Board& board) {
+    const char result = board.result();
+    if      (result == 0) return SearchInfo(0, 1, 1, 0);
+    else if (result == 1) return SearchInfo(1, 1, 1, 0);
+    else if (result == 2) return SearchInfo(-1, 1, 1, 0);
+
+    const UCH turn = (board.turn ? X : O);
+    char best_eval = (board.turn ? -1 : 1);
+    UINT nodes = 0, max_depth = 0;
+    UCH best_move = 0;
+    for (UCH i = 0; i < 9; i++) {
+        if (board.board[i] == 0) {
+            Board new_board = board.copy();
+            new_board.board[i] = turn;
+            new_board.turn = !new_board.turn;
+
+            const SearchInfo r = search(new_board);
+            const char ev = r.eval;
+            const UINT d = r.depth, n = r.nodes;
+            const UCH b = r.best;
+
+            nodes += n;
+            if (d > max_depth) max_depth = d;
+            if (board.turn && (ev >= best_eval)) {
+                best_eval = ev;
+                best_move = i;
+            } else if (!board.turn && (ev <= best_eval)) {
+                best_eval = ev;
+                best_move = i;
+            }
+        }
+    }
+
+    return SearchInfo(best_eval, max_depth+1, nodes+1, best_move);
+}
 
 
 int main() {
