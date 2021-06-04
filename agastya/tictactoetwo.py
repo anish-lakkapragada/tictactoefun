@@ -80,6 +80,7 @@ def sim(myboard):
         print("After")
         ticprint(asdf)
         current = [posx[x][0], posx[x][1]]
+        coolest = current
         if won(asdf) == "I won!":
             best = best + 1
         if won(asdf) == "You won.":
@@ -95,9 +96,35 @@ def sim(myboard):
                 best = best + 1
             if won(asdf) == "You won.":
                 best = best - 1
-            if best >= finalbest:
-                finalbest = best
-                coolest = current
+            for z in range(empty(asdf)):
+                print("Initial")
+                ticprint(asdf)
+                asdf[posx[z][0]][posx[z][1]] = "O"
+                print("After")
+                ticprint(asdf)
+                newcurrent = [posx[z][0], posx[z][1]]
+                if won(asdf) == "I won!":
+                    best = best + 1
+                if won(asdf) == "You won.":
+                    best = best - 1
+                ticprint(asdf)
+                for a in range(empty(asdf)):
+                    print("Initial")
+                    ticprint(asdf)
+                    asdf[posx[a][0]][posx[a][1]] = "X"
+                    print("After")
+                    ticprint(asdf)
+                    if won(asdf) == "I won!":
+                        best = best + 1
+                    if won(asdf) == "You won.":
+                        best = best - 10
+                    if best >= finalbest:
+                        finalbest = best
+                        coolest = current
+                    ticprint(asdf)
+                    asdf[posx[a][0]][posx[a][1]] = "*"
+                    ticprint(asdf)
+                asdf[newcurrent[0]][newcurrent[1]] = "*"
             ticprint(asdf)
             asdf[posx[y][0]][posx[y][1]] = "*"
             ticprint(asdf)
@@ -117,4 +144,3 @@ while won(board) == "Draw.":
     board[mysim[0]][mysim[1]] = "O"
     ticprint(board)
 print(won(board))
-
