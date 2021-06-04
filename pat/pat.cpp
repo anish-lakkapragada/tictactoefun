@@ -134,7 +134,7 @@ struct SearchInfo {
 };
 
 
-SearchInfo search(Board& board, const UCH asdf) {
+SearchInfo search(Board& board) {
     const char result = board.result();
     if      (result == 0) return SearchInfo(0, 1, 1, 0);
     else if (result == 1) return SearchInfo(1, 1, 1, 0);
@@ -150,7 +150,7 @@ SearchInfo search(Board& board, const UCH asdf) {
             new_board.board[i] = turn;
             new_board.turn = !new_board.turn;
 
-            const SearchInfo r = search(new_board, asdf+1);
+            const SearchInfo r = search(new_board);
             const char ev = r.eval;
             const UINT d = r.depth, n = r.nodes;
 
@@ -172,6 +172,34 @@ SearchInfo search(Board& board, const UCH asdf) {
 
 int main() {
     Board board;
-    SearchInfo result = search(board, 0);
-    cout << +result.eval << " " << +result.depth << " " << +result.nodes << " " << +result.best << endl;
+
+    while (true) {
+        const char result = board.result();
+        if (result != -1) {
+            string win = (result == X) ? "X" : "O";
+            if (result == 0) win = "DRAW";
+            cout << "Game result: " << win << endl;
+            break;
+        }
+
+        cout << "\n\n\n\n\n\n\n\n\n\n" << endl;
+        if (board.turn) {
+            board.print(cout);
+            cout << "Enter move (index): " << std::flush;
+
+            UINT move;
+            cin >> move;
+            board.board[move] = X;
+            board.turn = !board.turn;
+        } else {
+            const SearchInfo result = search(board);
+            board.board[result.best] = O;
+            board.turn = !board.turn;
+            board.print(cout);
+            cout << "Evaluation (0=draw, 1=X wins, -1=O wins): " << +result.eval << endl;
+            cout << "Max depth searched: " << +result.depth << endl;
+            cout << "Total positions searched: " << +result.nodes << endl;
+            cout << "Best move (index): " << +result.best << endl;
+        }
+    }
 }
