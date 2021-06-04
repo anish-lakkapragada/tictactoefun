@@ -37,6 +37,9 @@ public:
 
     Board() {
         turn = true;
+        board = new UCH [9];
+        for (UCH i = 0; i < 9; i++)
+            board[i] = 0;
     }
 
     Board(UCH b[9], const bool t) {
@@ -72,10 +75,6 @@ public:
         return board[x + 3*y];
     }
 
-    UCH get(const UCH p[2]) {
-        return board[p[0] + 3*p[1]];
-    }
-
     void set(const UCH x, const UCH y, const UCH v) {
         board[x + 3*y] = v;
     }
@@ -98,9 +97,9 @@ public:
 
     char result() {
         for (UCH i = 0; i < NUM_WINS; i++) {
-            const UCH p1 = get(WINS[i][0]);
-            const UCH p2 = get(WINS[i][1]);
-            const UCH p3 = get(WINS[i][2]);
+            const UCH p1 = get(WINS[i][0][0], WINS[i][0][1]);
+            const UCH p2 = get(WINS[i][1][0], WINS[i][1][1]);
+            const UCH p3 = get(WINS[i][2][0], WINS[i][2][1]);
             if (p1 == p2 && p2 == p3 && p1 != 0)
                 return p1;
         }
@@ -135,7 +134,7 @@ struct SearchInfo {
 };
 
 
-SearchInfo search(Board& board) {
+SearchInfo search(Board& board, const UCH asdf) {
     const char result = board.result();
     if      (result == 0) return SearchInfo(0, 1, 1, 0);
     else if (result == 1) return SearchInfo(1, 1, 1, 0);
@@ -151,10 +150,9 @@ SearchInfo search(Board& board) {
             new_board.board[i] = turn;
             new_board.turn = !new_board.turn;
 
-            const SearchInfo r = search(new_board);
+            const SearchInfo r = search(new_board, asdf+1);
             const char ev = r.eval;
             const UINT d = r.depth, n = r.nodes;
-            const UCH b = r.best;
 
             nodes += n;
             if (d > max_depth) max_depth = d;
@@ -173,4 +171,7 @@ SearchInfo search(Board& board) {
 
 
 int main() {
+    Board board;
+    SearchInfo result = search(board, 0);
+    cout << +result.eval << " " << +result.depth << " " << +result.nodes << " " << +result.best << endl;
 }
