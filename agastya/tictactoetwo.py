@@ -1,28 +1,28 @@
 import random
 
 board = [["*", "*", "*"], ["*", "*", "*"], ["*", "*", "*"]]
-def ticprint(board):
-    for line in board:
+def ticprint(myboard):
+    for line in myboard:
         print(line[0], line[1], line[2])
 
 
-def empty(board):
+def empty(myboard):
     count = 0
-    for line in board:
+    for line in myboard:
         for thing in line:
             if thing == "*":
                 count = count + 1
     return count
 
-def emptypos(board):
+def emptypos(myboard):
     empty = []
     for coordy in range(0, 3):
         for coordx in range(0, 3):
-            if board[coordy][coordx] == "*":
+            if myboard[coordy][coordx] == "*":
                 empty.append([coordy, coordx])
     return empty
 
-def won(board):
+def won(myboard):
     series = []
     comp = []
     enemy = []
@@ -30,11 +30,11 @@ def won(board):
     coordy = 0
     for coordy in range(0, 3):
         for coordx in range(0, 3):
-            if board[coordy][coordx] == "*":
+            if myboard[coordy][coordx] == "*":
                 pass
-            elif board[coordy][coordx] == "X":
+            elif myboard[coordy][coordx] == "X":
                 enemy.append([coordy, coordx])
-            elif board[coordy][coordx] == "O":
+            elif myboard[coordy][coordx] == "O":
                 comp.append([coordy, coordx])
             else:
                 pass
@@ -63,56 +63,84 @@ def threeinarow(series):
             continue
     return False
 
-def sim(board):
+
+def sim(myboard):
     best = 0
-    finalbest = 0
+    finalbest = -9
     current = []
     coolest = []
-    for x in range(empty(board)):
+    asdf = myboard[:]
+    asdf = asdf[:]
+    posx = emptypos(asdf)[:]
+    for x in range(empty(asdf)):
         best = 0
-        if len(emptypos(board)) > 0:
-            board[emptypos(board)[0][0]][emptypos(board)[0][1]] = "O"
-            current = [emptypos(board)[0][0], emptypos(board)[0][1]]
-        if won(board) == "I won!":
+        print("Initial")
+        ticprint(asdf)
+        asdf[posx[x][0]][posx[x][1]] = "O"
+        print("After")
+        ticprint(asdf)
+        current = [posx[x][0], posx[x][1]]
+        coolest = current
+        if won(asdf) == "I won!":
             best = best + 1
-        else:
-            for y in range(empty(board)):
-                print(y)
-                print(emptypos(board))
-                print(board[0][2])
-                if len(emptypos(board)) > 0:
-                    board[emptypos(board)[0][0]][emptypos(board)[0][1]] = "X"
-                ticprint(board)
-                if won(board) == "You won.":
+        if won(asdf) == "You won.":
+            best = best - 1
+        ticprint(asdf)
+        for y in range(empty(asdf)):
+            print("Initial")
+            ticprint(asdf)
+            asdf[posx[y][0]][posx[y][1]] = "X"
+            print("After")
+            ticprint(asdf)
+            if won(asdf) == "I won!":
+                best = best + 1
+            if won(asdf) == "You won.":
+                best = best - 1
+            for z in range(empty(asdf)):
+                print("Initial")
+                ticprint(asdf)
+                asdf[posx[z][0]][posx[z][1]] = "O"
+                print("After")
+                ticprint(asdf)
+                newcurrent = [posx[z][0], posx[z][1]]
+                if won(asdf) == "I won!":
+                    best = best + 1
+                if won(asdf) == "You won.":
                     best = best - 1
-                else:
-                    for z in range(empty(board)):
-                        print(emptypos(board), z)
-                        if len(emptypos(board)) > 0:
-                            board[emptypos(board)[0][0]][emptypos(board)[0][1]] = "O"
-                        if won(board) == "I won!":
-                            best = best + 1
-                            print(best)
-                        else:
-                            continue
-        if best > finalbest:
-            finalbest = best
-            coolest = current
-            print(coolest)
-            
+                ticprint(asdf)
+                for a in range(empty(asdf)):
+                    print("Initial")
+                    ticprint(asdf)
+                    asdf[posx[a][0]][posx[a][1]] = "X"
+                    print("After")
+                    ticprint(asdf)
+                    if won(asdf) == "I won!":
+                        best = best + 1
+                    if won(asdf) == "You won.":
+                        best = best - 10
+                    if best >= finalbest:
+                        finalbest = best
+                        coolest = current
+                    ticprint(asdf)
+                    asdf[posx[a][0]][posx[a][1]] = "*"
+                    ticprint(asdf)
+                asdf[newcurrent[0]][newcurrent[1]] = "*"
+            ticprint(asdf)
+            asdf[posx[y][0]][posx[y][1]] = "*"
+            ticprint(asdf)
+        asdf[current[0]][current[1]] = "*"
     return coolest
 
-def play(board):
-    while won(board) == "Draw.":
-        ticprint(board)
-        row = int(input("Enter the row. "))
-        col = int(input("Enter the column. "))
-        board[row][col] = "X"
-        ticprint(board)
-        print(sim(board)[0])
-        print(board[0][2])
-        board[sim(board)[0]][sim(board)[1]] = "O"
-        ticprint(board)
-    print(won(board))
-
-play(board)
+while won(board) == "Draw.":
+    ticprint(board)
+    row = int(input("Enter the row. "))
+    col = int(input("Enter the column. "))
+    board[row][col] = "X"
+    ticprint(board)
+    mysim = sim(board)[:]
+    print("Sim board: ", mysim)
+    print(mysim[0])
+    print(board[0][2])
+    board[mysim[0]][mysim[1]] = "O"
+    ticprint(board)
+print(won(board))
